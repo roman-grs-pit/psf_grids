@@ -1,4 +1,3 @@
 # This config defines the parameters used in generating the psf_grids
 
 fov_pixels: 364
-use_detsampled_psf: True
