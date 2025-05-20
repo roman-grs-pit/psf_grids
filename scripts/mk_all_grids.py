@@ -20,4 +20,4 @@ for wavelength in bins:
     print(f"""
           starting {wavelength}
           """)
-    pgu.save_grid_all_detectors(wavelength, outdir, fov_pixels=grid_conf["fov_pixels"])
+    pgu.save_all_grids(wavelength, outdir, fov_pixels=grid_conf["fov_pixels"], overwrite=True)
