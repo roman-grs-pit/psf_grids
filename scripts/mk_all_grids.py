@@ -14,7 +14,7 @@ conf_file = os.path.join(github_dir, "grism_sim/data/grizli_config.yaml")
 with open(conf_file) as f:
     grizli_conf = yaml.safe_load(f)
 
-bins = np.linspace(grizli_conf["minlam"], grizli_conf["maxlam"], grizli_conf["npsfs"])
+bins = np.linspace(grizli_conf["minlam"], grizli_conf["maxlam"], grizli_conf["npsfs"] + 1)
 
 for wavelength in bins:
     print(f"""
