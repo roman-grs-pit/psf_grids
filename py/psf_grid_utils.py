@@ -19,23 +19,11 @@ def load_psf_grid(grid_file, github_dir=github_dir_env):
     grid = stpsf.utils.to_griddedpsfmodel(filepath)
     return grid
 
-def all_dets(func):
+def save_one_grid(det_num, wavelength, outdir, fov_pixels=364, overwrite=False, **kwargs):
     """
-    Wrapper that passes in det_num argument. Omit det_num args when using
-    this wrapper.
-    """
-    def wrap(*args, **kwargs):
-        for ii in range(1, 19):
-            func(ii, *args, **kwargs)
-        print(f"Success!!! {func.__name__} has been completed successfully")
-    return wrap
-
-@all_dets
-def save_all_grids(det_num, wavelength, outdir, fov_pixels=364, **kwargs):
-    """
-    Computes and saves GriddedPSFModel fits files for all detectors at a given
+    Computes and saves GriddedPSFModel fits files for a single detector at a given
     wavelength. Creates a detector's fits file and modifies it's header with args
-    and version hash before moving onto the next detector.
+    and version hash.
 
     Follows naming scheme: 
     {instrument}_{filter}_{fovp}_wave{wavelength}_{det}.fits
@@ -47,16 +35,16 @@ def save_all_grids(det_num, wavelength, outdir, fov_pixels=364, **kwargs):
         __KWARGS_USED = True
 
     print(f"\nGenerating PSF Grid fits file for SCA{det_num:02} at {wavelength:.0f}\u212b...")
-    create_grid_one_detector(det_num, wavelength, fov_pixels=fov_pixels, save=True, outdir=outdir, **kwargs)
-
+    create_grid_one_detector(det_num, wavelength, fov_pixels=fov_pixels, save=True, outdir=outdir, overwrite=overwrite, **kwargs)
     
     filename = f"{wfi.name}_{wfi.filter}_fovp{fov_pixels}_wave{wavelength:.0f}_SCA{det_num:02}.fits".lower()
     filepath = os.path.join(outdir, filename)
 
     print(f"Adding version info to header for SCA{det_num:02} at {wavelength:.0f}\u212b...")
-    add_version_info(filepath, __KWARGS_USED, fov_pixels=fov_pixels, **kwargs)
+    add_version_info(filepath, __KWARGS_USED, **kwargs)
 
     print("PSF Grid fits generation and versioning successful!")
+
     return 0
 
 def create_grid_one_detector(det_num, wavelength, fov_pixels=364, save=False, outdir=None, overwrite=False, **kwargs):
@@ -127,7 +115,7 @@ def check_version(filepath, ext=0, **kwargs):
     kwargs. Checks value against header. If values are equal, returns a 0. Else,
     prints header and returns a 1.
     """
-
+    
     kwargs["stpsfver"] = stpsf.__version__
     expected_hash = dict_hash(kwargs)
 
@@ -139,4 +127,5 @@ def check_version(filepath, ext=0, **kwargs):
         return 0
     else:
         print(header.tostring(sep='\n'))
+        print(f"\nVersion hash does not match")
         return 1
