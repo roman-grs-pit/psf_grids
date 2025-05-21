@@ -1,6 +1,5 @@
 import os
 import stpsf
-import subprocess
 from astropy.io import fits
 import json
 import hashlib
@@ -39,8 +38,8 @@ def save_all_grids(det_num, wavelength, outdir, fov_pixels=364, **kwargs):
     and version hash before moving onto the next detector.
 
     Follows naming scheme: 
-    {instrument}_{filter}_{fovp}_{wavelength}a_{det}.fits
-    e.g. wfi_grism0_fovp364_10000a_sca01.fits
+    {instrument}_{filter}_{fovp}_wave{wavelength}_{det}.fits
+    e.g. wfi_grism0_fovp364_wave10000_sca01.fits
     """
     
     __KWARGS_USED = False
@@ -50,9 +49,11 @@ def save_all_grids(det_num, wavelength, outdir, fov_pixels=364, **kwargs):
     print(f"\nGenerating PSF Grid fits file for SCA{det_num:02} at {wavelength:.0f}\u212b...")
     create_grid_one_detector(det_num, wavelength, fov_pixels=fov_pixels, save=True, outdir=outdir, **kwargs)
 
-    print(f"Adding version info to header for SCA{det_num:02} at {wavelength:.0f}\u212b...")
-    filename = f"{wfi.name}_{wfi.filter}_fovp{fov_pixels}_{wavelength:.0f}A_SCA{det_num:02}.fits".lower()
+    
+    filename = f"{wfi.name}_{wfi.filter}_fovp{fov_pixels}_wave{wavelength:.0f}_SCA{det_num:02}.fits".lower()
     filepath = os.path.join(outdir, filename)
+
+    print(f"Adding version info to header for SCA{det_num:02} at {wavelength:.0f}\u212b...")
     add_version_info(filepath, __KWARGS_USED, fov_pixels=fov_pixels, **kwargs)
 
     print("PSF Grid fits generation and versioning successful!")
@@ -64,15 +65,15 @@ def create_grid_one_detector(det_num, wavelength, fov_pixels=364, save=False, ou
     wavelength. Does not modify the header with version info.
 
     Follows naming scheme: 
-    {instrument}_{filter}_{fovp}_{wavelength}a_{det}.fits
-    e.g. wfi_grism0_fovp364_10000a_sca01.fits
+    {instrument}_{filter}_{fovp}_wave{wavelength}_{det}.fits
+    e.g. wfi_grism0_fovp364_wave10000_sca01.fits
     """
 
     detector = "SCA{:02}".format(det_num)
     wfi.detector = detector
 
     if save:
-        outfile = f"{wfi.name}_{wfi.filter}_fovp{fov_pixels}_{wavelength:.0f}A".lower() #_det.fits is added automatically
+        outfile = f"{wfi.name}_{wfi.filter}_fovp{fov_pixels}_wave{wavelength:.0f}".lower() #_det.fits is added automatically
 
         wfi.psf_grid(all_detectors=False, use_detsampled_psf=True, monochromatic=wavelength*1e-10, fov_pixels=fov_pixels,
                      save=True, outdir=outdir, outfile=outfile, overwrite=overwrite, **kwargs)
