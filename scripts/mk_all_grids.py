@@ -4,10 +4,12 @@ import numpy as np
 import psf_grid_utils as pgu
 from multiprocessing import Pool
 
-github_dir = os.getenv("github_dir")
-outdir = os.path.join(github_dir, "psf_grids/data")
+psf_grid_dir = os.getenv("psf_grid_dir")
+outdir = os.path.join(psf_grid_dir, "psf_grids/data")
 
-conf_file = os.path.join(github_dir, "psf_grids/data/psf_grid_config.yaml")
+github_dir = os.getenv("github_dir")
+
+conf_file = os.path.join(psf_grid_dir, "psf_grids/data/psf_grid_config.yaml")
 with open(conf_file) as f:
         grid_conf = yaml.safe_load(f)
 
