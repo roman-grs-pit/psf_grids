@@ -4,18 +4,18 @@ from astropy.io import fits
 import json
 import hashlib
 
-psf_grid_dir=os.getenv('psf_grid_dir')
-if psf_grid_dir is None:
+psf_grid_data_dir=os.getenv('psf_grid_data_dir')
+if psf_grid_data_dir is None:
     print('psf_grid_dir environment variable has not been set')
 
 wfi = stpsf.WFI()
 wfi.filter = "GRISM0"
 
-def load_psf_grid(grid_file, psf_grid_dir=psf_grid_dir):
+def load_psf_grid(grid_file, psf_grid_data_dir=psf_grid_data_dir):
     """
     Reads in a saved GriddedPSFModel fits file. Returns that file.
     """
-    filepath = os.path.join(psf_grid_dir, "psf_grids/data", grid_file)
+    filepath = os.path.join(psf_grid_data_dir, grid_file)
     grid = stpsf.utils.to_griddedpsfmodel(filepath)
     return grid
 
