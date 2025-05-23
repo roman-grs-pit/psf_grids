@@ -1,3 +1,4 @@
 # This config defines the parameters used in generating the psf_grids
 
 fov_pixels: 364
+psf_grid_data_dir: "/global/cfs/cdirs/m4943/grismsim/psf_grid_data"
