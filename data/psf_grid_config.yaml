@@ -1,5 +1,6 @@
 # This config defines the parameters used in generating the psf_grids
 
 fov_pixels: 364
-psf_grid_data_dir: "/dvs_ro/cfs/cdirs/m4943/grismsim/psf_grid_data"
+psf_grid_data_read: "/dvs_ro/cfs/cdirs/m4943/grismsim/psf_grid_data"
+psf_grid_data_write: "/global/cfs/cdirs/m4943/grismsim/psf_grid_data"
 # /dvs_ro is a read only mount for the cfs and reccomended for faster speeds when not writing data

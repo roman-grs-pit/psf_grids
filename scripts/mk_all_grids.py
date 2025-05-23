@@ -4,9 +4,9 @@ import numpy as np
 import psf_grid_utils as pgu
 from multiprocessing import Pool
 
-outdir = os.getenv("psf_grid_data_dir")
+outdir = os.getenv("psf_grid_data_write")
 if outdir is None:
-    raise RuntimeError("psf_grid_data_dir environment variable has not been set")
+    raise RuntimeError("psf_grid_data_write environment variable has not been set")
 
 github_dir = os.getenv("github_dir")
 if github_dir is None:
