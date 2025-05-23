@@ -15,7 +15,7 @@ def load_psf_grid(grid_file, psf_grid_dir=psf_grid_dir):
     """
     Reads in a saved GriddedPSFModel fits file. Returns that file.
     """
-    filepath = os.path.join(psf_grid_dir, "data", grid_file)
+    filepath = os.path.join(psf_grid_dir, "psf_grids/data", grid_file)
     grid = stpsf.utils.to_griddedpsfmodel(filepath)
     return grid
 
