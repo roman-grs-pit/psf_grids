@@ -1,8 +1,12 @@
 import os
-import stpsf
 from astropy.io import fits
 import json
 import hashlib
+
+try:
+    import stpsf
+except:
+    import webbpsf as stpsf
 
 psf_grid_data_read=os.getenv('psf_grid_data_read')
 if psf_grid_data_read is None:
