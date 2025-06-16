@@ -127,9 +127,9 @@ def check_version(filepath, ext=0, **kwargs):
     header = file[ext].header
 
     if header["verhash"] == expected_hash:
-        print(f"\nVersion hash matches expected value")
+        print(f"Version hash matches expected value")
         return 0
     else:
         print(header.tostring(sep='\n'))
-        print(f"\nVersion hash does not match")
+        print(f"\n\033[93mVersion hash does not match\033[0m\n")
         return 1
