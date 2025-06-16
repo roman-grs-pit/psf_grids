@@ -113,12 +113,14 @@ def add_version_info(filepath, kwargs_flag, ext=0, **kwargs):
     
     return 0
 
-def check_version(filepath, ext=0, **kwargs):
+def check_version(filename, ext=0, **kwargs):
     """
     Opens the fits located at {filepath}. Computes expected version_hash value from
     kwargs. Checks value against header. If values are equal, returns a 0. Else,
     prints header and returns a 1.
     """
+
+    filepath = os.path.join(psf_grid_data_read, filename)
     
     kwargs["stpsfver"] = stpsf.__version__
     expected_hash = dict_hash(kwargs)
