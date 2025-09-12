@@ -2,6 +2,8 @@ import os
 from astropy.io import fits
 import json
 import hashlib
+import image_utils as iu
+import time
 
 try:
     import stpsf
@@ -111,7 +113,7 @@ def add_version_info(filepath, kwargs_flag, ext=0, **kwargs):
     kwargs["verhash"] = version_hash # Put version hash in kwargs
     kwargs["kwargsuse"] = kwargs_flag # Set kwargs flag
 
-    file = fits.open(filepath)
+    file = try_wait_loop(fits.open, filepath)
     header = file[ext].header
 
     # write all kwargs to header
@@ -136,7 +138,7 @@ def check_version(filename, ext=0, **kwargs):
     kwargs["stpsfver"] = stpsf.__version__
     expected_hash = dict_hash(kwargs)
 
-    file = fits.open(filepath)
+    file = try_wait_loop(fits.open, filepath)
     header = file[ext].header
 
     if header["verhash"] == expected_hash:
@@ -146,3 +148,34 @@ def check_version(filename, ext=0, **kwargs):
         print(header.tostring(sep='\n'))
         print(f"\n\033[93mVersion hash does not match\033[0m\n")
         return 1
+
+def try_wait_loop(func, *args, max_attempts=3, wait=5, **kwargs):
+    """
+    Attempt to call func using args and kwargs. Upon a fail, wait som time and try
+    again. Upon {max_attempts} number of fails, raise Exception. Used when reading
+    files recently written on NERSC.
+
+    Parameters
+    ----------
+    func: callable
+        Function or other callable to attempt calling
+    max_attempts: int, optional
+        Maximum number of attempts before raising exception. default: 3
+    wait: float, optional
+        Seconds to wait upon failure before retrying. default: 5
+    """
+    attempt = 0
+    while attempt < max_attempts:
+        try:
+            res = func(*args, **kwargs)
+            break
+        except Exception as e:
+            attempt += 1 
+            if attempt < max_attempts:
+                print(f"{func.__name__} failed. Waiting {wait} and retrying: {attempt}/{max_attempts}")
+                time.sleep(wait)
+            else:
+                print(f"{func.__name__} failed. Maximum retries exceeded: {max_attempts}")
+                raise e
+    
+    return res
