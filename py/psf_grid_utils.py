@@ -13,7 +13,7 @@ if psf_grid_data_read is None:
     print('psf_grid_data_read environment variable has not been set')
 
 wfi = stpsf.WFI()
-wfi.filter = "GRISM0"
+wfi.filter = "GRISM1"
 
 def load_psf_grid(grid_file, psf_grid_data_read=psf_grid_data_read):
     """
@@ -31,7 +31,7 @@ def save_one_grid(det_num, wavelength, outdir, fov_pixels=364, overwrite=False, 
 
     Follows naming scheme: 
     {instrument}_{filter}_{fovp}_wave{wavelength}_{det}.fits
-    e.g. wfi_grism0_fovp364_wave10000_sca01.fits
+    e.g. wfi_grism1_fovp364_wave10000_sca01.fits
     """
     
     __KWARGS_USED = False
@@ -58,7 +58,7 @@ def create_grid_one_detector(det_num, wavelength, fov_pixels=364, save=False, ou
 
     Follows naming scheme: 
     {instrument}_{filter}_{fovp}_wave{wavelength}_{det}.fits
-    e.g. wfi_grism0_fovp364_wave10000_sca01.fits
+    e.g. wfi_grism1_fovp364_wave10000_sca01.fits
     """
 
     detector = "SCA{:02}".format(det_num)
