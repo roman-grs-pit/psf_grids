@@ -15,6 +15,17 @@ if psf_grid_data_read is None:
 wfi = stpsf.WFI()
 wfi.filter = "GRISM1"
 
+def switch_filter(filter_name):
+    """
+    Switched to the given filter
+    """
+
+    wfi.filter = filter_name
+
+    print(wfi.filter)
+    
+    return 0 
+
 def load_psf_grid(grid_file, psf_grid_data_read=psf_grid_data_read):
     """
     Reads in a saved GriddedPSFModel fits file. Returns that file.
