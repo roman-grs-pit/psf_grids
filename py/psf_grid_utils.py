@@ -53,8 +53,13 @@ def save_one_grid(det_num, wavelength, outdir, fov_pixels=364, overwrite=False, 
 
     print(f"\nGenerating PSF Grid fits file for SCA{det_num:02} at {wavelength:.0f}\u212b...")
     create_grid_one_detector(det_num, wavelength, fov_pixels=fov_pixels, save=True, outdir=outdir, overwrite=overwrite, **kwargs)
-    
-    filename = f"{wfi.name}_{wfi.filter}_fovp{fov_pixels}_wave{wavelength:.0f}_SCA{det_num:02}.fits".lower()
+
+    if wfi.filter == "GRISM1":
+        filename = f"{wfi.name}_{wfi.filter}_fovp{fov_pixels}_wave{wavelength:.0f}_SCA{det_num:02}.fits".lower()
+    elif wfi.filter == "GRISM1":
+        filename = f"{wfi.name}_{wfi.filter}_fovp{fov_pixels}_wave{wavelength:.0f}_wfi{det_num:02}.fits".lower()
+    else:
+        raise ValueError(f"Unexpected filter: {wfi.filter}")
     filepath = os.path.join(outdir, filename)
 
     print(f"Adding version info to header for SCA{det_num:02} at {wavelength:.0f}\u212b...")
