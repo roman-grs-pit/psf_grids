@@ -2,6 +2,8 @@ import os
 from astropy.io import fits
 import json
 import hashlib
+import image_utils as iu
+import time
 
 try:
     import stpsf
@@ -13,7 +15,18 @@ if psf_grid_data_read is None:
     print('psf_grid_data_read environment variable has not been set')
 
 wfi = stpsf.WFI()
-wfi.filter = "GRISM0"
+wfi.filter = "GRISM1"
+
+def switch_filter(filter_name):
+    """
+    Switched to the given filter
+    """
+
+    wfi.filter = filter_name
+
+    print(wfi.filter)
+    
+    return 0 
 
 def load_psf_grid(grid_file, psf_grid_data_read=psf_grid_data_read):
     """
@@ -31,7 +44,7 @@ def save_one_grid(det_num, wavelength, outdir, fov_pixels=364, overwrite=False, 
 
     Follows naming scheme: 
     {instrument}_{filter}_{fovp}_wave{wavelength}_{det}.fits
-    e.g. wfi_grism0_fovp364_wave10000_sca01.fits
+    e.g. wfi_grism1_fovp364_wave10000_sca01.fits
     """
     
     __KWARGS_USED = False
@@ -40,8 +53,13 @@ def save_one_grid(det_num, wavelength, outdir, fov_pixels=364, overwrite=False, 
 
     print(f"\nGenerating PSF Grid fits file for SCA{det_num:02} at {wavelength:.0f}\u212b...")
     create_grid_one_detector(det_num, wavelength, fov_pixels=fov_pixels, save=True, outdir=outdir, overwrite=overwrite, **kwargs)
-    
-    filename = f"{wfi.name}_{wfi.filter}_fovp{fov_pixels}_wave{wavelength:.0f}_SCA{det_num:02}.fits".lower()
+
+    if wfi.filter == "GRISM0":
+        filename = f"{wfi.name}_{wfi.filter}_fovp{fov_pixels}_wave{wavelength:.0f}_SCA{det_num:02}.fits".lower()
+    elif wfi.filter == "GRISM1":
+        filename = f"{wfi.name}_{wfi.filter}_fovp{fov_pixels}_wave{wavelength:.0f}_wfi{det_num:02}.fits".lower()
+    else:
+        raise ValueError(f"Unexpected filter: {wfi.filter}")
     filepath = os.path.join(outdir, filename)
 
     print(f"Adding version info to header for SCA{det_num:02} at {wavelength:.0f}\u212b...")
@@ -58,7 +76,7 @@ def create_grid_one_detector(det_num, wavelength, fov_pixels=364, save=False, ou
 
     Follows naming scheme: 
     {instrument}_{filter}_{fovp}_wave{wavelength}_{det}.fits
-    e.g. wfi_grism0_fovp364_wave10000_sca01.fits
+    e.g. wfi_grism1_fovp364_wave10000_sca01.fits
     """
 
     detector = "SCA{:02}".format(det_num)
@@ -100,7 +118,7 @@ def add_version_info(filepath, kwargs_flag, ext=0, **kwargs):
     kwargs["verhash"] = version_hash # Put version hash in kwargs
     kwargs["kwargsuse"] = kwargs_flag # Set kwargs flag
 
-    file = fits.open(filepath)
+    file = try_wait_loop(fits.open, filepath)
     header = file[ext].header
 
     # write all kwargs to header
@@ -125,7 +143,7 @@ def check_version(filename, ext=0, **kwargs):
     kwargs["stpsfver"] = stpsf.__version__
     expected_hash = dict_hash(kwargs)
 
-    file = fits.open(filepath)
+    file = try_wait_loop(fits.open, filepath)
     header = file[ext].header
 
     if header["verhash"] == expected_hash:
@@ -135,3 +153,34 @@ def check_version(filename, ext=0, **kwargs):
         print(header.tostring(sep='\n'))
         print(f"\n\033[93mVersion hash does not match\033[0m\n")
         return 1
+
+def try_wait_loop(func, *args, max_attempts=3, wait=5, **kwargs):
+    """
+    Attempt to call func using args and kwargs. Upon a fail, wait som time and try
+    again. Upon {max_attempts} number of fails, raise Exception. Used when reading
+    files recently written on NERSC.
+
+    Parameters
+    ----------
+    func: callable
+        Function or other callable to attempt calling
+    max_attempts: int, optional
+        Maximum number of attempts before raising exception. default: 3
+    wait: float, optional
+        Seconds to wait upon failure before retrying. default: 5
+    """
+    attempt = 0
+    while attempt < max_attempts:
+        try:
+            res = func(*args, **kwargs)
+            break
+        except Exception as e:
+            attempt += 1 
+            if attempt < max_attempts:
+                print(f"{func.__name__} failed. Waiting {wait} and retrying: {attempt}/{max_attempts}")
+                time.sleep(wait)
+            else:
+                print(f"{func.__name__} failed. Maximum retries exceeded: {max_attempts}")
+                raise e
+    
+    return res
