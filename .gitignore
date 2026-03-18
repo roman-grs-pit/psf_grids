@@ -1,2 +1,3 @@
 wfi*.fits
 __pycache__
+*.egg-info
